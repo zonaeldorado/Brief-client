@@ -6,15 +6,31 @@
 <title>Client Brief Form</title>
 
 <style>
-    body {
+    * {
         margin: 0;
-        font-family: Arial, sans-serif;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
         height: 100vh;
+        overflow: hidden;
+        font-family: Arial, sans-serif;
         display: flex;
         justify-content: center;
         align-items: center;
         background: linear-gradient(160deg, #1e3c54, #355d75, #1d2f3f);
         color: #fff;
+    }
+
+    /* Particle background */
+    #particles {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
     }
 
     .container {
@@ -23,9 +39,15 @@
         background: rgba(255, 255, 255, 0.08);
         padding: 30px;
         border-radius: 18px;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.25);
         backdrop-filter: blur(8px);
         text-align: center;
+        animation: fadeIn 1s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 
     h2 {
@@ -72,20 +94,20 @@
 
     button {
         width: 100%;
-        padding: 12px;
+        padding: 13px;
         background: #4d8df5;
         border: none;
         border-radius: 12px;
         color: white;
-        font-size: 15px;
+        font-size: 16px;
         font-weight: 600;
         cursor: pointer;
-        transition: 0.25s;
+        transition: 0.25s cubic-bezier(.25,.8,.25,1);
     }
 
     button:hover {
         background: #3b7ae0;
-        transform: translateY(-2px);
+        transform: scale(1.045);
     }
 
     .note {
@@ -97,6 +119,8 @@
 </head>
 
 <body>
+
+<canvas id="particles"></canvas>
 
 <div class="container">
     <h2>Client Request Form</h2>
@@ -120,26 +144,69 @@
 
 
 <script>
+/* WhatsApp Sender */
 document.getElementById("clientForm").addEventListener("submit", function(e) {
     e.preventDefault();
 
-    // GANTI NOMOR WA DI SINI
-    let phone = "6281282378802"; // ← ganti ke nomor kamu (format 62)
-
+    let phone = "6281282378802"; // ← GANTI ke nomor kamu
     let name = document.getElementById("name").value;
     let price = document.getElementById("price").value;
     let desc = document.getElementById("description").value;
 
-    let message = 
+    let message =
         "New Client Request:%0A%0A" +
         "Name: " + name + "%0A" +
         "Budget: " + price + "%0A" +
         "Project Description:%0A" + desc;
 
     let url = "https://wa.me/" + phone + "?text=" + message;
-
     window.open(url, "_blank");
 });
+
+/* Particle Rain Effect */
+const canvas = document.getElementById("particles");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let particles = [];
+
+function createParticle() {
+    let x = Math.random() * canvas.width;
+    let y = -10;
+    let length = Math.random() * 20 + 10;
+    let speed = Math.random() * 4 + 2;
+
+    particles.push({ x, y, length, speed });
+}
+
+function updateParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.strokeStyle = "rgba(255,255,255,0.25)";
+    ctx.lineWidth = 1.2;
+
+    particles.forEach((p, index) => {
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
+        ctx.lineTo(p.x, p.y + p.length);
+        ctx.stroke();
+
+        p.y += p.speed;
+
+        if (p.y > canvas.height) {
+            particles.splice(index, 1);
+        }
+    });
+
+    if (particles.length < 150) {
+        createParticle();
+    }
+
+    requestAnimationFrame(updateParticles);
+}
+
+updateParticles();
 </script>
 
 </body>
